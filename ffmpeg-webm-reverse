@@ -1,0 +1,86 @@
+#!/bin/bash
+
+# ffmpeg-webm-reverse
+
+# Bash script to create reversed webms. No audio is included.
+# ffmpeg is required.
+# See https://github.com/WhatIsThisImNotGoodWithComputers/ffmpeg-webm-scripts for usage.
+
+# Created by WhatIsThisImNotGoodWithComputers (ohgod AT whatisthisimnotgoodwithcomputers DOT com)
+
+#vars
+TEMP_FOLDER="ffmpeg-temp"
+OUTPUT_FILE="output.webm"
+FRAMERATE="4500K"
+TEMP=`getopt --long -o "i:s:t:o:f:c:a:" "$@"`
+
+#params
+eval set -- "$TEMP"
+while true ; do
+    case "$1" in
+        -i )
+            INPUT_FILE=$2
+            shift 2
+        ;;
+        -s )
+            START_TIME=$2
+            shift 2
+        ;;
+        -t )
+            TO_TIME=$2
+            shift 2
+        ;;
+        -o )
+            OUTPUT_FILE=$2
+            shift 2
+        ;;
+        -f )
+            FRAMERATE=$2
+            shift 2
+        ;;
+        -c )
+			if [ -n "$CROPSCALE" ]; then
+				CSTEMP="$CROPSCALE"',crop='$2
+				CROPSCALE=$CSTEMP
+			else
+				CROPSCALE='-vf crop='$2
+			fi
+            shift 2
+        ;;
+        -a )
+			if [ -n "$CROPSCALE" ]; then
+				CSTEMP="$CROPSCALE"',scale='$2
+				CROPSCALE=$CSTEMP
+			else
+				CROPSCALE='-vf scale='$2
+			fi
+            shift 2
+        ;;
+        *)
+            break
+        ;;
+    esac 
+done;
+
+#work
+if [[ -d $TEMP_FOLDER ]]; then
+	echo -e "\033[01;41;35mERROR: there's a directory $TEMP_FOLDER here.\033[0m"
+	#exit 0
+else
+	#create dir
+	echo -e "\033[05;44;33mCreating temp dir: $TEMP_FOLDER ...\033[0m"
+	mkdir $TEMP_FOLDER
+	#create shots
+	echo -e "\033[05;44;33mUsing ffmpeg to create snapshots...\033[0m"
+	ffmpeg -i "${INPUT_FILE}" -ss $START_TIME -to $TO_TIME -an -qscale 1 $TEMP_FOLDER/%06d.jpg
+	#create webm
+	echo -e "\033[05;44;33mUsing ffmpeg to encode snapshots into BACK FORTH webm\033[0m"
+	cat $(ls -r $TEMP_FOLDER/*jpg) | ffmpeg -f image2pipe -vcodec mjpeg -r 25 -i - -c:v libvpx -crf 20 -b:v $FRAMERATE $CROPSCALE -threads 0 -an $OUTPUT_FILE
+	#cleaning up
+	echo -e "\033[05;44;33mCleaning up...\033[0m"
+	rm -r $TEMP_FOLDER
+	#Uncomment following line if you're having trouble with cropping and or scaling
+	#echo $CROPSCALE
+fi
+
+exit 0
