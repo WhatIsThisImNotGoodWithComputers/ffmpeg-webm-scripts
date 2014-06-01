@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# ffmpeg-webm-normal
+
+# Bash script to create webms which go back and forth. No audio is included.
+# ffmpeg is required.
+# See https://github.com/WhatIsThisImNotGoodWithComputers/ffmpeg-webm-scripts for usage.
+
+# Created by WhatIsThisImNotGoodWithComputers (ohgod AT whatisthisimnotgoodwithcomputers DOT com)
+
+#vars
+OUTPUT_FILE="output.webm"
+FRAMERATE="4500K"
+TEMP=`getopt --long -o "i:s:t:o:f:c:a:" "$@"`
+
+#params
+eval set -- "$TEMP"
+while true ; do
+    case "$1" in
+        -i )
+            INPUT_FILE=$2
+            shift 2
+        ;;
+        -s )
+            START_TIME=$2
+            shift 2
+        ;;
+        -t )
+            TO_TIME=$2
+            shift 2
+        ;;
+        -o )
+            OUTPUT_FILE=$2
+            shift 2
+        ;;
+        -f )
+            FRAMERATE=$2
+            shift 2
+        ;;
+        -c )
+			if [ -n "$CROPSCALE" ]; then
+				CSTEMP="$CROPSCALE"',crop='$2
+				CROPSCALE=$CSTEMP
+			else
+				CROPSCALE='-vf crop='$2
+			fi
+            shift 2
+        ;;
+        -a )
+			if [ -n "$CROPSCALE" ]; then
+				CSTEMP="$CROPSCALE"',scale='$2
+				CROPSCALE=$CSTEMP
+			else
+				CROPSCALE='-vf scale='$2
+			fi
+            shift 2
+        ;;
+        *)
+            break
+        ;;
+    esac 
+done;
+
+#create webm
+echo -e "\033[05;44;33mUsing ffmpeg to encode NORMAL webm\033[0m"
+ffmpeg -i "${INPUT_FILE}" -ss $START_TIME -to $TO_TIME -c:v libvpx -crf 4 -b:v $FRAMERATE $CROPSCALE -threads 0 -an $OUTPUT_FILE
+
+exit 0
