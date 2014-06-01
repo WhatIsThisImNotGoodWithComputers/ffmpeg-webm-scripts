@@ -2,7 +2,7 @@
 
 # ffmpeg-webm-normal
 
-# Bash script to create webms which go back and forth. No audio is included.
+# Bash script to create webms, easy mode. No audio is included.
 # ffmpeg is required.
 # See https://github.com/WhatIsThisImNotGoodWithComputers/ffmpeg-webm-scripts for usage.
 
