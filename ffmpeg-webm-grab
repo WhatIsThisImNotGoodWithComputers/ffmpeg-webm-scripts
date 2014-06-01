@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# ffmpeg-webm-grab
+
+# Bash script to create webms from grabbing screen. No audio is included.
+# ffmpeg is required.
+# xrectsel is required. https://github.com/lolilolicon/FFcast2/blob/master/xrectsel.c
+# See https://github.com/WhatIsThisImNotGoodWithComputers/ffmpeg-webm-scripts for usage.
+
+# Created by WhatIsThisImNotGoodWithComputers (ohgod AT whatisthisimnotgoodwithcomputers DOT com)
+
+#vars
+OUTPUT_FILE="grab.webm"
+FRAMERATE="2500K"
+TEMP=`getopt --long -o "i:s:t:o:f:d:" "$@"`
+DELAY=10
+
+#params
+eval set -- "$TEMP"
+while true ; do
+    case "$1" in
+        -i )
+            INPUT_FILE=$2
+            shift 2
+        ;;
+        -s )
+            START_TIME=$2
+            shift 2
+        ;;
+        -t )
+            TO_TIME=$2
+            shift 2
+        ;;
+        -o )
+            OUTPUT_FILE=$2
+            shift 2
+        ;;
+        -f )
+            FRAMERATE=$2
+            shift 2
+        ;;
+        -d )
+            DELAY=$2
+            shift 2
+        ;;
+        *)
+            break
+        ;;
+    esac 
+done;
+
+X11GRAB=$(xrectsel "-f x11grab -s %wx%h -i :0.0+%x,%y") || exit -1
+echo $X11GRAB;
+
+echo -e "\033[05;44;33mRecording in $DELAY seconds (-d). Press q to stop recording.\033[0m"
+echo 
+for (( i=$DELAY; i>0; --i )) ; do
+    echo $i
+    sleep 1
+done
+
+ffmpeg ${X11GRAB} -c:v libvpx -an -b:v $FRAMERATE -threads 0 -tune zerolatency -crf 0 -preset ultrafast $OUTPUT_FILE
+
+exit 0
