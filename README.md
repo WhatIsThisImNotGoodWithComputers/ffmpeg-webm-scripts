@@ -25,5 +25,7 @@ ffmpeg-webm-backforth -i \[Watakushi\]\ Akuma\ no\ Riddle\ -\ 04\ \[720p\]\[5A12
 Example 2: Cropping first, then scaling. `test2.webm` is generated with the following command:
 
 ```bash
-ffmpeg-webm-backforth -i \[Watakushi\]\ Akuma\ no\ Riddle\ -\ 04\ \[720p\]\[5A124B29\].mkv -s 00:01:00.000 -t 00:01:02.000 -o test2.webm -c 474:720:726:0 -a -1:400
+ffmpeg-webm-backforth -i \[Watakushi\]\ Akuma\ no\ Riddle\ -\ 04\ \[720p\]\[5A124B29\].mkv -s 00:01:00.000 -t 00:01:02.000 -o test2.webm -c 474,0,726,720 -a -1:400
 ```
+
+This command now takes new values for cropping, instead of the normal what ffmpeg needs, the script will calculate the correct values, you just need to insert your x1,y1 and x2,y2. See the cropping_example.png for which points you need to add, all with comma's.
