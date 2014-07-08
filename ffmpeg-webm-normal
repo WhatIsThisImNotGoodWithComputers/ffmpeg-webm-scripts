@@ -38,11 +38,16 @@ while true ; do
             shift 2
         ;;
         -c )
+			#process cropping values
+			IFS=',' read -ra ARR <<< "$2"
+			NEW_CROP="$((${ARR[2]} - ${ARR[0]})):$((${ARR[3]} - ${ARR[1]})):${ARR[0]}:${ARR[1]}"
+		    
+		    #add
 			if [ -n "$CROPSCALE" ]; then
-				CSTEMP="$CROPSCALE"',crop='$2
+				CSTEMP="$CROPSCALE"',crop='$NEW_CROP
 				CROPSCALE=$CSTEMP
 			else
-				CROPSCALE='-vf crop='$2
+				CROPSCALE='-vf crop='$NEW_CROP
 			fi
             shift 2
         ;;
